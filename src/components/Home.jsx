@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Home = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ const Home = () => {
   const fetchAnalyses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8080/get-analysis");
+      const res = await axios.get(`${BASE_URL}/get-analysis`);
       const fetchedData = res.data.data || [];
       setAllAnalyses(fetchedData);
       setAnalyses(fetchedData);
@@ -88,7 +89,7 @@ const Home = () => {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:8080/create-analysis",
+        `${BASE_URL}/create-analysis`,
         newAnalysis
       );
 
