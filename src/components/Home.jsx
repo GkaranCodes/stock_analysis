@@ -6,8 +6,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Home = () => {
   const [formData, setFormData] = useState({
     stockName: "",
-    dateFrom: "",
-    dateTo: "",
+    date: "",
     result: "",
   });
 
@@ -129,9 +128,7 @@ const Home = () => {
     try {
       setFormData({
         stockName: "",
-        dateFrom: "",
-        dateTo: "",
-        direction: "",
+        date: "",
         result: "",
       });
       await fetchAnalyses();
@@ -140,25 +137,23 @@ const Home = () => {
     }
   };
 
-  const handleFilter = (e) => {
-    e.preventDefault();
-
+  const handleFilter = () => {
     const filtered = allAnalyses.filter((item) => {
-      const { stockName, dateFrom, dateTo, direction, result } = formData;
+      const { stockName, date, result } = formData;
 
       const matchesStock = stockName
         ? item.name.toLowerCase().includes(stockName.toLowerCase())
         : true;
-      const matchesResult = result ? item.analysisResult === result : true;
 
-      const itemDate = new Date(item.date);
-      const fromDate = dateFrom ? new Date(dateFrom) : null;
-      const toDate = dateTo ? new Date(dateTo) : null;
+      const matchesResult = result
+        ? item.analysisResult.toLowerCase() === result.toLowerCase()
+        : true;
 
-      const matchesDate =
-        (!fromDate || itemDate >= fromDate) && (!toDate || itemDate <= toDate);
+      const matchesDate = date
+        ? new Date(item.date).toISOString().slice(0, 10) === date
+        : true;
 
-      return matchesStock && matchesDirection && matchesResult && matchesDate;
+      return matchesStock && matchesResult && matchesDate;
     });
 
     setAnalyses(filtered);
@@ -189,6 +184,10 @@ const Home = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    handleFilter();
+  }, [formData.date, formData.stockName, formData.result]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-500 to-gray-100 w-full">
@@ -334,24 +333,12 @@ const Home = () => {
 
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  From Date
+                  Date
                 </label>
                 <input
                   type="date"
-                  name="dateFrom"
-                  value={formData.dateFrom}
-                  onChange={handleFilterChange}
-                  className="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  To Date
-                </label>
-                <input
-                  type="date"
-                  name="dateTo"
-                  value={formData.dateTo}
+                  name="date"
+                  value={formData.date}
                   onChange={handleFilterChange}
                   className="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 />
@@ -373,13 +360,6 @@ const Home = () => {
               </div>
 
               <div className="flex gap-3">
-                <button
-                  type="submit"
-                  className="py-2 px-6 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200 text-white transition-colors duration-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  disabled={loading}
-                >
-                  {loading ? "Filtering..." : "Filter Results"}
-                </button>
                 <button
                   onClick={handleClearFilter}
                   className="py-2 px-6 bg-green-600 focus:ring-offset-indigo-200 text-white transition-colors duration-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
